@@ -21,35 +21,26 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.xml.stax.reader;
+package org.gatein.staxbuilder.writer;
 
-import org.gatein.xml.stax.EnumElement;
+
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.xml.XMLConstants;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.io.ByteArrayInputStream;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author <a href="mailto:nscavell@redhat.com">Nick Scavelli</a>
  * @version $Revision$
  */
-public class StaxReaderBuilderTest
+public class StaxWriterBuilderTest
 {
+   @Test
    public void createBuilder_Nothing() throws XMLStreamException
    {
       try
       {
-         new StaxReaderBuilder().build();
+         new StaxWriterBuilder().build();
          Assert.fail("Expected IllegalStateException with empty builder.");
       }
       catch (IllegalStateException ise)
@@ -63,8 +54,8 @@ public class StaxReaderBuilderTest
    {
       try
       {
-         new StaxReaderBuilder().withReader(null).build();
-         Assert.fail("Cannot pass null Reader, IllegalArgumentException must be thrown.");
+         new StaxWriterBuilder().withWriter(null).build();
+         Assert.fail("Cannot pass null Writer, IllegalArgumentException must be thrown.");
       }
       catch (IllegalArgumentException iae)
       {
@@ -73,24 +64,23 @@ public class StaxReaderBuilderTest
 
       try
       {
-         new StaxReaderBuilder().withInputStream(null).build();
-         Assert.fail("Cannot pass null InputStream, IllegalArgumentException must be thrown.");
+         new StaxWriterBuilder().withOutputStream(null).build();
+         Assert.fail("Cannot pass null OutputStream, IllegalArgumentException must be thrown.");
       }
       catch (IllegalArgumentException iae)
       {
          // pass
       }
-
+      
       try
       {
-         new StaxReaderBuilder().withXMLStreamReader(null).build();
-         Assert.fail("Cannot pass null XMLStreamReader, IllegalArgumentException must be thrown.");
+         new StaxWriterBuilder().withXMLStreamWriter(null).build();
+         Assert.fail("Cannot pass null XMLStreamWriter, IllegalArgumentException must be thrown.");
       }
       catch (IllegalArgumentException iae)
       {
          // pass
       }
    }
-
 
 }

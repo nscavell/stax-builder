@@ -21,9 +21,9 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.xml.stax.reader;
+package org.gatein.staxbuilder.reader;
 
-import org.gatein.xml.stax.EnumElement;
+import org.gatein.staxbuilder.EnumElement;
 
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;

@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.xml.stax.reader;
+package org.gatein.staxbuilder.writer;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -29,17 +29,17 @@ import javax.xml.stream.XMLStreamException;
  * @author <a href="mailto:nscavell@redhat.com">Nick Scavelli</a>
  * @version $Revision$
  */
-public interface StaxReader
+public interface StaxWriteEvent
 {
+   StaxWriteEvent startElement(String localName) throws XMLStreamException;
 
-   StaxReadEvent read() throws XMLStreamException;
+   StaxWriter endElement() throws XMLStreamException;
 
-   StaxReadEvent readNextTag() throws XMLStreamException;
+   StaxWriteEvent withAttribute(String localName, String value) throws XMLStreamException;
 
-   StaxReadEvent currentReadEvent() throws XMLStreamException;
+   StaxWriteEvent withCharacters(String text) throws XMLStreamException;
 
-   StaxReadEventBuilder buildReadEvent()  throws XMLStreamException;
+   StaxWriter writeElement(String localName, String text) throws XMLStreamException;
 
-   boolean hasNext() throws XMLStreamException;
-
+   StaxWriter writeOptionalElement(String localName, String text) throws XMLStreamException;
 }

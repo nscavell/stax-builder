@@ -21,7 +21,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.xml.stax.writer;
+package org.gatein.staxbuilder.writer;
 
 import org.junit.Assert;
 import org.junit.Test;

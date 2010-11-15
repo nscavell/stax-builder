@@ -21,23 +21,33 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.xml.stax.reader;
+package org.gatein.staxbuilder.writer;
 
-import org.gatein.xml.stax.EnumElement;
+import javax.xml.stream.XMLStreamException;
 
 /**
  * @author <a href="mailto:nscavell@redhat.com">Nick Scavelli</a>
  * @version $Revision$
  */
-public interface StaxReadEventBuilder
+public interface StaxWriter
 {
-   // todo: rename methods/clean up api as i don't think it's quite intuitive
+   StaxWriter startDocument() throws XMLStreamException;
 
-   StaxReadEventBuilder until(EnumElement element);
+   /**
+    * Ends the document and will attempt to flush and close underlying stream.
+    * @throws XMLStreamException
+    */
+   void endDocument() throws XMLStreamException;
 
-   StaxReadEventBuilder end();
+   StaxWriteEvent startElement(String localName) throws XMLStreamException;
 
-   StaxReadEventBuilder start();
+   StaxWriter endElement() throws XMLStreamException;
 
-   StaxReadEvent build();
+   StaxWriter writeAttribute(String localName, String value) throws XMLStreamException;
+
+   StaxWriter writeCharacters(String text) throws XMLStreamException;
+
+   StaxWriter writeElement(String localName, String text) throws XMLStreamException;
+
+   StaxWriter writeOptionalElement(String localName, String text) throws XMLStreamException;
 }

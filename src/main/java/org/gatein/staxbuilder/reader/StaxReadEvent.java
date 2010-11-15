@@ -21,7 +21,9 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.xml.stax.writer;
+package org.gatein.staxbuilder.reader;
+
+import org.gatein.staxbuilder.EnumElement;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -29,17 +31,24 @@ import javax.xml.stream.XMLStreamException;
  * @author <a href="mailto:nscavell@redhat.com">Nick Scavelli</a>
  * @version $Revision$
  */
-public interface StaxWriteEvent
+public interface StaxReadEvent
 {
-   StaxWriteEvent startElement(String localName) throws XMLStreamException;
+   //todo: there's two outcomes to this match, no match found but we read a START_ELEMENT and where we don't read a START_ELEMENT
 
-   StaxWriter endElement() throws XMLStreamException;
+   <E extends Enum<E> & EnumElement> E match(Class<E> enumType, E nomatch) throws XMLStreamException;
 
-   StaxWriteEvent withAttribute(String localName, String value) throws XMLStreamException;
+   StaxReader and() throws XMLStreamException;
 
-   StaxWriteEvent withCharacters(String text) throws XMLStreamException;
+   StaxReadEvent next() throws XMLStreamException;
 
-   StaxWriter writeElement(String localName, String text) throws XMLStreamException;
+   int getEventType() throws XMLStreamException;
 
-   StaxWriter writeOptionalElement(String localName, String text) throws XMLStreamException;
+   String elementText() throws XMLStreamException;
+
+   String getLocalName() throws XMLStreamException;
+
+   String getText() throws XMLStreamException;
+
+   boolean hasNext() throws XMLStreamException;
+
 }
