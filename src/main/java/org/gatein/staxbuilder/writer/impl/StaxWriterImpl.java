@@ -21,7 +21,9 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.staxbuilder.writer;
+package org.gatein.staxbuilder.writer.impl;
+
+import org.gatein.staxbuilder.writer.StaxWriter;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -30,13 +32,12 @@ import javax.xml.stream.XMLStreamWriter;
  * @author <a href="mailto:nscavell@redhat.com">Nick Scavelli</a>
  * @version $Revision$
  */
-public class StaxWriterImpl implements StaxWriter, StaxWriteEvent
+//TODO: Support all XMLStreamWriter methods, ie namepsaces, comments, cdata, etc
+public class StaxWriterImpl implements StaxWriter
 {
    private final XMLStreamWriter writer;
    private final String encoding;
    private final String version;
-
-   private boolean elementWritten = false;
 
    public StaxWriterImpl(final XMLStreamWriter writer, final String encoding, final String version)
    {
@@ -64,15 +65,14 @@ public class StaxWriterImpl implements StaxWriter, StaxWriteEvent
       return this;
    }
 
-   public void endDocument() throws XMLStreamException
+   public StaxWriter endDocument() throws XMLStreamException
    {
       writer.writeEndDocument();
-      writer.flush();
-      writer.close();
+      return this;
    }
 
    @Override
-   public StaxWriteEvent startElement(String localName) throws XMLStreamException
+   public StaxWriter startElement(String localName) throws XMLStreamException
    {
       writer.writeStartElement(localName);
       return this;
@@ -82,7 +82,6 @@ public class StaxWriterImpl implements StaxWriter, StaxWriteEvent
    public StaxWriter endElement() throws XMLStreamException
    {
       writer.writeEndElement();
-      elementWritten = false;
       return this;
    }
 
@@ -94,14 +93,6 @@ public class StaxWriterImpl implements StaxWriter, StaxWriteEvent
    }
 
    @Override
-   public StaxWriteEvent withAttribute(String localName, String value) throws XMLStreamException
-   {
-      checkElementNotWritten(); //TODO: Probably should do always do this, move to writeAttribute method
-      writeAttribute(localName, value);
-      return this;
-   }
-
-   @Override
    public StaxWriter writeCharacters(String text) throws XMLStreamException
    {
       writer.writeCharacters(text);
@@ -109,17 +100,9 @@ public class StaxWriterImpl implements StaxWriter, StaxWriteEvent
    }
 
    @Override
-   public StaxWriteEvent withCharacters(String text) throws XMLStreamException
-   {
-      elementWritten = true; //TODO: Probably should always do this, move to writeCharacters method
-      writeCharacters(text);
-      return this;
-   }
-
-   @Override
    public StaxWriter writeElement(String localName, String text) throws XMLStreamException
    {
-      return startElement(localName).withCharacters(text).endElement();
+      return startElement(localName).writeCharacters(text).endElement();
    }
 
    @Override
@@ -130,8 +113,16 @@ public class StaxWriterImpl implements StaxWriter, StaxWriteEvent
       return writeElement(localName, text);
    }
 
-   private void checkElementNotWritten() throws XMLStreamException
+   @Override
+   public StaxWriter flush() throws XMLStreamException
    {
-      if (elementWritten) throw new IllegalStateException("Cannot write attributes after element has been written.");
+      writer.flush();
+      return this;
+   }
+
+   @Override
+   public void close() throws XMLStreamException
+   {
+      writer.close();
    }
 }

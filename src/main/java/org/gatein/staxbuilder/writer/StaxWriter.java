@@ -33,13 +33,9 @@ public interface StaxWriter
 {
    StaxWriter startDocument() throws XMLStreamException;
 
-   /**
-    * Ends the document and will attempt to flush and close underlying stream.
-    * @throws XMLStreamException
-    */
-   void endDocument() throws XMLStreamException;
+   StaxWriter endDocument() throws XMLStreamException;
 
-   StaxWriteEvent startElement(String localName) throws XMLStreamException;
+   StaxWriter startElement(String localName) throws XMLStreamException;
 
    StaxWriter endElement() throws XMLStreamException;
 
@@ -50,4 +46,8 @@ public interface StaxWriter
    StaxWriter writeElement(String localName, String text) throws XMLStreamException;
 
    StaxWriter writeOptionalElement(String localName, String text) throws XMLStreamException;
+
+   StaxWriter flush() throws XMLStreamException;
+
+   void close() throws XMLStreamException;
 }

@@ -23,6 +23,9 @@
 
 package org.gatein.staxbuilder.writer;
 
+import org.gatein.staxbuilder.writer.impl.FormattingStaxWriter;
+import org.gatein.staxbuilder.writer.impl.StaxWriterImpl;
+
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -42,6 +45,14 @@ public class StaxWriterBuilder
    private String version;
    private String encoding;
 
+   private FormatterBuilder formatterBuilder;
+   private FormatterBuilder defaultFormatterBuilder;
+
+   /*
+   private int indent;
+   private boolean useTabCharacter;
+   private int maxColumns;
+   */
    public StaxWriterBuilder()
    {
    }
@@ -86,6 +97,34 @@ public class StaxWriterBuilder
       return this;
    }
 
+   public FormatterBuilder withFormatting()
+   {
+      // Keep current formatter if it's not the default one. This allows the unpredictability the developer will call this multiple times
+      if (formatterBuilder == null || formatterBuilder == defaultFormatterBuilder)
+      {
+         this.formatterBuilder = new FormatterBuilder(this);
+      }
+
+      return formatterBuilder;
+   }
+
+   public StaxWriterBuilder withDefaultFormatting()
+   {
+      if (defaultFormatterBuilder == null)
+      {
+         defaultFormatterBuilder = new FormatterBuilder(this).indentSize(3).sameLineChracterLimit(80);
+      }
+
+      this.formatterBuilder = defaultFormatterBuilder;
+      return this;
+   }
+
+   public StaxWriterBuilder withNoFormatting()
+   {
+      this.formatterBuilder = null;
+      return this;
+   }
+
    public StaxWriter build() throws XMLStreamException, IllegalStateException
    {
       if (writer == null && output == null) throw new IllegalStateException("Cannot build stax writer. Try calling withOutputStream or withWriter.");
@@ -106,6 +145,15 @@ public class StaxWriterBuilder
          }
       }
 
-      return new StaxWriterImpl(writer, encoding, version);
+      StaxWriterImpl staxWriterImpl = new StaxWriterImpl(writer, encoding, version);
+
+      if (formatterBuilder != null)
+      {
+         return new FormattingStaxWriter(staxWriterImpl, formatterBuilder.build());
+      }
+      else
+      {
+         return staxWriterImpl;
+      }
    }
 }
