@@ -13,51 +13,51 @@ import java.io.StringWriter;
 public class FormattingStaxWriterTest
 {
    @Test
-   public void defaultFormattedWrite() throws XMLStreamException
+   public void defaultFormattingWriter() throws XMLStreamException
    {
       StringWriter sw = new StringWriter();
       StaxWriter writer = new StaxWriterBuilder().withWriter(sw).withEncoding("UTF-8").withDefaultFormatting().build();
 
-      writer.startDocument().startElement("level-1");
-      writer.startElement("level-2-1").writeAttribute("attr", "value").writeCharacters("some text here").endElement();
+      writer.writeStartDocument().writeStartElement("level-1");
+      writer.writeStartElement("level-2-1").writeAttribute("attr", "value").writeCharacters("some text here").writeEndElement();
       writer.writeElement("level-2-2", "some long text here to test out same line character limit logic.");
       writer.writeElement("level-2-3", "multi\nline text\nhere\n");
-      writer.startElement("level-2-4").writeCharacters("characters here too").writeElement("level-2-4-1", "more");
-      writer.endElement().endElement().endDocument();
+      writer.writeStartElement("level-2-4").writeCharacters("characters here too").writeElement("level-2-4-1", "more");
+      writer.writeEndElement().writeEndElement().writeEndDocument();
 
       Assert.assertEquals(defaultExpected, sw.toString());
    }
 
    @Test
-   public void customFormattedWrite() throws XMLStreamException
+   public void customFormattingWriter() throws XMLStreamException
    {
       StringWriter sw = new StringWriter();
       StaxWriter writer = new StaxWriterBuilder().withWriter(sw).withEncoding("UTF-8").
          withFormatting().indentSize(5).sameLineChracterLimit(25).and().build();
 
-      writer.startDocument().startElement("level-1");
-      writer.startElement("level-2-1").writeAttribute("attr", "value").writeCharacters("some text here").endElement();
+      writer.writeStartDocument().writeStartElement("level-1");
+      writer.writeStartElement("level-2-1").writeAttribute("attr", "value").writeCharacters("some text here").writeEndElement();
       writer.writeElement("level-2-2", "some long text here to test out same line character limit logic.");
       writer.writeElement("level-2-3", "multi\nline text\nhere\n");
-      writer.startElement("level-2-4").writeCharacters("characters here too").writeElement("level-2-4-1", "more");
-      writer.endElement().endElement().endDocument();
+      writer.writeStartElement("level-2-4").writeCharacters("characters here too").writeElement("level-2-4-1", "more");
+      writer.writeEndElement().writeEndElement().writeEndDocument();
 
       Assert.assertEquals(customExpected, sw.toString());
    }
 
    @Test
-   public void customFormattedWriteWithTab() throws XMLStreamException
+   public void customFormattingWriterWithTab() throws XMLStreamException
    {
       StringWriter sw = new StringWriter();
       StaxWriter writer = new StaxWriterBuilder().withWriter(sw).withEncoding("UTF-8").
          withFormatting().indentSize(2).useTabCharacter(true).sameLineChracterLimit(25).and().build();
 
-      writer.startDocument().startElement("level-1");
-      writer.startElement("level-2-1").writeAttribute("attr", "value").writeCharacters("some text here").endElement();
+      writer.writeStartDocument().writeStartElement("level-1");
+      writer.writeStartElement("level-2-1").writeAttribute("attr", "value").writeCharacters("some text here").writeEndElement();
       writer.writeElement("level-2-2", "some long text here to test out same line character limit logic.");
       writer.writeElement("level-2-3", "multi\nline text\nhere\n");
-      writer.startElement("level-2-4").writeCharacters("characters here too").writeElement("level-2-4-1", "more");
-      writer.endElement().endElement().endDocument();
+      writer.writeStartElement("level-2-4").writeCharacters("characters here too").writeElement("level-2-4-1", "more");
+      writer.writeEndElement().writeEndElement().writeEndDocument();
 
       Assert.assertEquals(customExpectedWithTab, sw.toString());
    }

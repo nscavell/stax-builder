@@ -40,38 +40,38 @@ public class FormattingStaxWriter implements StaxWriter, XMLStreamConstants
    //------------------------- StaxWriter Impl -------------------------//
 
    @Override
-   public StaxWriter startDocument() throws XMLStreamException
+   public StaxWriter writeStartDocument() throws XMLStreamException
    {
       changeState(START_DOCUMENT);
 
-      writer.startDocument();
+      writer.writeStartDocument();
       nl();
 
       return this;
    }
 
    @Override
-   public StaxWriter endDocument() throws XMLStreamException
+   public StaxWriter writeEndDocument() throws XMLStreamException
    {
       changeState(END_DOCUMENT);
 
-      writer.endDocument();
+      writer.writeEndDocument();
       return this;
    }
 
    @Override
-   public StaxWriter startElement(String localName) throws XMLStreamException
+   public StaxWriter writeStartElement(String localName) throws XMLStreamException
    {
       changeState(START_ELEMENT);
-      writer.startElement(localName);
+      writer.writeStartElement(localName);
       return this;
    }
 
    @Override
-   public StaxWriter endElement() throws XMLStreamException
+   public StaxWriter writeEndElement() throws XMLStreamException
    {
       changeState(END_ELEMENT);
-      writer.endElement();
+      writer.writeEndElement();
       return this;
    }
 
@@ -99,7 +99,7 @@ public class FormattingStaxWriter implements StaxWriter, XMLStreamConstants
    @Override
    public StaxWriter writeElement(String localName, String text) throws XMLStreamException
    {
-      return startElement(localName).writeCharacters(text).endElement();
+      return writeStartElement(localName).writeCharacters(text).writeEndElement();
    }
 
    @Override

@@ -44,7 +44,7 @@ public class StaxWriterTest
       StringWriter sw = new StringWriter();
       StaxWriter writer = new StaxWriterBuilder().withWriter(sw).build();
       Assert.assertNotNull(writer);
-      writer.startDocument().endDocument();
+      writer.writeStartDocument().writeEndDocument();
 
       String s1 = sw.toString();
       String version = getVersionFromXMLDocument(s1);
@@ -56,7 +56,7 @@ public class StaxWriterTest
       StringWriter sw2 = new StringWriter();
       StaxWriter writer2 = new StaxWriterBuilder().withWriter(sw2).withDefaults().build();
       Assert.assertNotNull(writer2);
-      writer2.startDocument().endDocument();
+      writer2.writeStartDocument().writeEndDocument();
 
       String s2 = sw2.toString();
       String version2 = getVersionFromXMLDocument(s2);
@@ -72,7 +72,7 @@ public class StaxWriterTest
       StringWriter sw = new StringWriter();
       StaxWriter writer = new StaxWriterBuilder().withWriter(sw).withEncoding("UTF-8").build();
       Assert.assertNotNull(writer);
-      writer.startDocument().endDocument();
+      writer.writeStartDocument().writeEndDocument();
 
       String xml = sw.toString();
       String version = getVersionFromXMLDocument(xml);
@@ -88,7 +88,7 @@ public class StaxWriterTest
       StringWriter sw = new StringWriter();
       StaxWriter writer = new StaxWriterBuilder().withWriter(sw).withVersion("1.0").build();
       Assert.assertNotNull(writer);
-      writer.startDocument().endDocument();
+      writer.writeStartDocument().writeEndDocument();
 
       String xml = sw.toString();
       String version = getVersionFromXMLDocument(xml);
@@ -104,7 +104,7 @@ public class StaxWriterTest
       StringWriter sw = new StringWriter();
       StaxWriter writer = new StaxWriterBuilder().withWriter(sw).withEncoding("ISO-8859-1").withVersion("1.0").build();
       Assert.assertNotNull(writer);
-      writer.startDocument().endDocument();
+      writer.writeStartDocument().writeEndDocument();
 
       String xml = sw.toString();
       String version = getVersionFromXMLDocument(xml);

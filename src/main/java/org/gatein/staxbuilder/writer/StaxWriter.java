@@ -31,13 +31,13 @@ import javax.xml.stream.XMLStreamException;
  */
 public interface StaxWriter
 {
-   StaxWriter startDocument() throws XMLStreamException;
+   StaxWriter writeStartDocument() throws XMLStreamException;
 
-   StaxWriter endDocument() throws XMLStreamException;
+   StaxWriter writeEndDocument() throws XMLStreamException;
 
-   StaxWriter startElement(String localName) throws XMLStreamException;
+   StaxWriter writeStartElement(String localName) throws XMLStreamException;
 
-   StaxWriter endElement() throws XMLStreamException;
+   StaxWriter writeEndElement() throws XMLStreamException;
 
    StaxWriter writeAttribute(String localName, String value) throws XMLStreamException;
 

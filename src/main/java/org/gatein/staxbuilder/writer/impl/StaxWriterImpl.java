@@ -47,7 +47,7 @@ public class StaxWriterImpl implements StaxWriter
    }
 
    @Override
-   public StaxWriter startDocument() throws XMLStreamException
+   public StaxWriter writeStartDocument() throws XMLStreamException
    {
       if (encoding == null && version == null)
       {
@@ -65,21 +65,21 @@ public class StaxWriterImpl implements StaxWriter
       return this;
    }
 
-   public StaxWriter endDocument() throws XMLStreamException
+   public StaxWriter writeEndDocument() throws XMLStreamException
    {
       writer.writeEndDocument();
       return this;
    }
 
    @Override
-   public StaxWriter startElement(String localName) throws XMLStreamException
+   public StaxWriter writeStartElement(String localName) throws XMLStreamException
    {
       writer.writeStartElement(localName);
       return this;
    }
 
    @Override
-   public StaxWriter endElement() throws XMLStreamException
+   public StaxWriter writeEndElement() throws XMLStreamException
    {
       writer.writeEndElement();
       return this;
@@ -102,7 +102,7 @@ public class StaxWriterImpl implements StaxWriter
    @Override
    public StaxWriter writeElement(String localName, String text) throws XMLStreamException
    {
-      return startElement(localName).writeCharacters(text).endElement();
+      return writeStartElement(localName).writeCharacters(text).writeEndElement();
    }
 
    @Override
