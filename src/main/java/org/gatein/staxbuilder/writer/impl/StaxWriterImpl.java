@@ -23,10 +23,15 @@
 
 package org.gatein.staxbuilder.writer.impl;
 
+import org.gatein.staxbuilder.conversion.DataTypeConverter;
 import org.gatein.staxbuilder.writer.StaxWriter;
 
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.util.Calendar;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:nscavell@redhat.com">Nick Scavelli</a>
@@ -38,12 +43,14 @@ public class StaxWriterImpl implements StaxWriter
    private final XMLStreamWriter writer;
    private final String encoding;
    private final String version;
+   private final Map<QName, DataTypeConverter> converters;
 
-   public StaxWriterImpl(final XMLStreamWriter writer, final String encoding, final String version)
+   public StaxWriterImpl(final XMLStreamWriter writer, final String encoding, final String version, Map<QName, DataTypeConverter> converters)
    {
       this.writer = writer;
       this.encoding = encoding;
       this.version = version;
+      this.converters = converters;
    }
 
    @Override
@@ -79,6 +86,34 @@ public class StaxWriterImpl implements StaxWriter
    }
 
    @Override
+   public StaxWriter writeStartElement(String prefix, String namespaceURI, String localName) throws XMLStreamException
+   {
+      writer.writeStartElement(prefix, namespaceURI, localName);
+      return this;
+   }
+
+   @Override
+   public StaxWriter writeStartElement(String namespaceURI, String localName) throws XMLStreamException
+   {
+      writer.writeStartElement(namespaceURI, localName);
+      return this;
+   }
+
+   @Override
+   public StaxWriter writeDefaultNamespace(String namespaceURI) throws XMLStreamException
+   {
+      writer.writeDefaultNamespace(namespaceURI);
+      return this;
+   }
+
+   @Override
+   public StaxWriter writeNamespace(String prefix, String namespaceURI) throws XMLStreamException
+   {
+      writer.writeNamespace(prefix, namespaceURI);
+      return this;
+   }
+
+   @Override
    public StaxWriter writeEndElement() throws XMLStreamException
    {
       writer.writeEndElement();
@@ -89,6 +124,20 @@ public class StaxWriterImpl implements StaxWriter
    public StaxWriter writeAttribute(String localName, String value) throws XMLStreamException
    {
       writer.writeAttribute(localName, value);
+      return this;
+   }
+
+   @Override
+   public StaxWriter writeAttribute(String prefix, String namespaceURI, String localName, String value) throws XMLStreamException
+   {
+      writer.writeAttribute(prefix, namespaceURI, localName, value);
+      return this;
+   }
+
+   @Override
+   public StaxWriter writeAttribute(String namespaceURI, String localName, String value) throws XMLStreamException
+   {
+      writer.writeAttribute(namespaceURI, localName, value);
       return this;
    }
 
@@ -114,6 +163,29 @@ public class StaxWriterImpl implements StaxWriter
    }
 
    @Override
+   public StaxWriter writeDate(Calendar date) throws XMLStreamException
+   {
+      DataTypeConverter<Calendar> converter = getDataTypeConverter(DatatypeConstants.DATE, Calendar.class);
+      return writeCharacters(converter.print(date));
+   }
+
+   @Override
+   public StaxWriter writeDateTime(Calendar date) throws XMLStreamException
+   {
+      DataTypeConverter<Calendar> converter = getDataTypeConverter(DatatypeConstants.DATETIME, Calendar.class);
+      return writeCharacters(converter.print(date));
+   }
+
+   @Override
+   @SuppressWarnings("unchecked")
+   public StaxWriter writeObject(QName qname, Object object) throws XMLStreamException
+   {
+      DataTypeConverter converter = getDataTypeConverter(qname);
+      writeCharacters(converter.print(object));
+      return this;
+   }
+
+   @Override
    public StaxWriter flush() throws XMLStreamException
    {
       writer.flush();
@@ -124,5 +196,28 @@ public class StaxWriterImpl implements StaxWriter
    public void close() throws XMLStreamException
    {
       writer.close();
+   }
+
+   private DataTypeConverter getDataTypeConverter(QName namespace) throws XMLStreamException
+   {
+      DataTypeConverter dtc = converters.get(namespace);
+      if (dtc == null) throw new XMLStreamException("No data type converter found for namespace " + namespace);
+
+      return dtc;
+   }
+
+   @SuppressWarnings("unchecked")
+   private <T> DataTypeConverter<T> getDataTypeConverter(QName namespace, Class<T> type) throws XMLStreamException
+   {
+      DataTypeConverter dtc = getDataTypeConverter(namespace);
+
+      try
+      {
+         return (DataTypeConverter<T>) dtc;
+      }
+      catch (ClassCastException cce)
+      {
+         throw new XMLStreamException("Was expecting converter of DataTypeConverter<" + type + "> for namespace " + namespace);
+      }
    }
 }

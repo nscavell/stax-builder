@@ -23,14 +23,26 @@
 
 package org.gatein.staxbuilder.writer;
 
+import org.gatein.staxbuilder.conversion.DataTypeConverter;
+import org.gatein.staxbuilder.conversion.impl.XmlDateConverter;
+import org.gatein.staxbuilder.conversion.impl.XmlDateTimeConverter;
 import org.gatein.staxbuilder.writer.impl.FormattingStaxWriter;
 import org.gatein.staxbuilder.writer.impl.StaxWriterImpl;
 
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.stream.events.Namespace;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:nscavell@redhat.com">Nick Scavelli</a>
@@ -47,14 +59,12 @@ public class StaxWriterBuilder
 
    private FormatterBuilder formatterBuilder;
    private FormatterBuilder defaultFormatterBuilder;
+   private Map<QName, DataTypeConverter> converters = new HashMap<QName, DataTypeConverter>();
 
-   /*
-   private int indent;
-   private boolean useTabCharacter;
-   private int maxColumns;
-   */
    public StaxWriterBuilder()
    {
+      converters.put(DatatypeConstants.DATE, new XmlDateConverter());
+      converters.put(DatatypeConstants.DATETIME, new XmlDateTimeConverter());
    }
 
    public StaxWriterBuilder withOutputStream(OutputStream out)
@@ -125,6 +135,12 @@ public class StaxWriterBuilder
       return this;
    }
 
+   public StaxWriterBuilder registerDataTypeConverter(QName namespace, DataTypeConverter converter)
+   {
+      converters.put(namespace, converter);
+      return this;
+   }
+
    public StaxWriter build() throws XMLStreamException, IllegalStateException
    {
       if (writer == null && output == null) throw new IllegalStateException("Cannot build stax writer. Try calling withOutputStream or withWriter.");
@@ -145,15 +161,15 @@ public class StaxWriterBuilder
          }
       }
 
-      StaxWriterImpl staxWriterImpl = new StaxWriterImpl(writer, encoding, version);
+      //StaxWriterImpl staxWriterImpl = new StaxWriterImpl(writer, encoding, version);
 
       if (formatterBuilder != null)
       {
-         return new FormattingStaxWriter(staxWriterImpl, formatterBuilder.build());
+         return new FormattingStaxWriter(writer, encoding, version, converters, formatterBuilder.build());
       }
       else
       {
-         return staxWriterImpl;
+         return new StaxWriterImpl(writer, encoding, version, converters);
       }
    }
 }

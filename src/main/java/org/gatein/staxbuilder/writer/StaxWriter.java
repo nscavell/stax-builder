@@ -23,7 +23,9 @@
 
 package org.gatein.staxbuilder.writer;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
+import java.util.Calendar;
 
 /**
  * @author <a href="mailto:nscavell@redhat.com">Nick Scavelli</a>
@@ -37,15 +39,33 @@ public interface StaxWriter
 
    StaxWriter writeStartElement(String localName) throws XMLStreamException;
 
+   StaxWriter writeStartElement(String prefix, String namespaceURI, String localName) throws XMLStreamException;
+
+   StaxWriter writeStartElement(String namespaceURI, String localName) throws XMLStreamException;
+
+   StaxWriter writeDefaultNamespace(String namespaceURI) throws XMLStreamException;
+
+   StaxWriter writeNamespace(String prefix, String namespaceURI) throws XMLStreamException;
+
    StaxWriter writeEndElement() throws XMLStreamException;
 
    StaxWriter writeAttribute(String localName, String value) throws XMLStreamException;
+
+   StaxWriter writeAttribute(String prefix, String namespaceURI, String localName, String value) throws XMLStreamException;
+
+   StaxWriter writeAttribute(String namespaceURI, String localName, String value) throws XMLStreamException;
 
    StaxWriter writeCharacters(String text) throws XMLStreamException;
 
    StaxWriter writeElement(String localName, String text) throws XMLStreamException;
 
    StaxWriter writeOptionalElement(String localName, String text) throws XMLStreamException;
+
+   StaxWriter writeDate(Calendar calendar) throws XMLStreamException;
+
+   StaxWriter writeDateTime(Calendar calendar) throws XMLStreamException;
+
+   StaxWriter writeObject(QName qname, Object object) throws XMLStreamException;
 
    StaxWriter flush() throws XMLStreamException;
 

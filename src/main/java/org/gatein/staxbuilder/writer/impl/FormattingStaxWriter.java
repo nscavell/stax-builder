@@ -1,28 +1,31 @@
 package org.gatein.staxbuilder.writer.impl;
 
+import org.gatein.staxbuilder.conversion.DataTypeConverter;
 import org.gatein.staxbuilder.writer.StaxWriter;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:nscavell@redhat.com">Nick Scavelli</a>
  * @version $Revision$
  */
-public class FormattingStaxWriter implements StaxWriter, XMLStreamConstants
+//TODO: Formatting logic could really be used
+public class FormattingStaxWriter extends StaxWriterImpl implements XMLStreamConstants
 {
-   private final StaxWriter writer;
    private final FormattingInfo formattingInfo;
    private final String indentString;
 
    private int state = START_DOCUMENT;
    private int level;
-   //private int charsToBeWritten;
    private StringBuilder buffer;
 
-   public FormattingStaxWriter(StaxWriter writer, FormattingInfo formattingInfo)
+   public FormattingStaxWriter(final XMLStreamWriter writer, final String encoding, final String version, Map<QName, DataTypeConverter> converters, FormattingInfo formattingInfo)
    {
-      this.writer = writer;
+      super(writer, encoding, version, converters);
 
       // Cannot accept a null FormattingInfo. If no formatting is needed this writer shouldn't be used.
       if (formattingInfo == null) throw new IllegalArgumentException("FormattingInfo cannot be null.");
@@ -44,7 +47,7 @@ public class FormattingStaxWriter implements StaxWriter, XMLStreamConstants
    {
       changeState(START_DOCUMENT);
 
-      writer.writeStartDocument();
+      super.writeStartDocument();
       nl();
 
       return this;
@@ -55,7 +58,7 @@ public class FormattingStaxWriter implements StaxWriter, XMLStreamConstants
    {
       changeState(END_DOCUMENT);
 
-      writer.writeEndDocument();
+      super.writeEndDocument();
       return this;
    }
 
@@ -63,7 +66,23 @@ public class FormattingStaxWriter implements StaxWriter, XMLStreamConstants
    public StaxWriter writeStartElement(String localName) throws XMLStreamException
    {
       changeState(START_ELEMENT);
-      writer.writeStartElement(localName);
+      super.writeStartElement(localName);
+      return this;
+   }
+
+   @Override
+   public StaxWriter writeStartElement(String prefix, String namespaceURI, String localName) throws XMLStreamException
+   {
+      changeState(START_ELEMENT);
+      super.writeStartElement(prefix, namespaceURI, localName);
+      return this;
+   }
+
+   @Override
+   public StaxWriter writeStartElement(String namespaceURI, String localName) throws XMLStreamException
+   {
+      changeState(START_ELEMENT);
+      super.writeStartElement(namespaceURI, localName);
       return this;
    }
 
@@ -71,7 +90,7 @@ public class FormattingStaxWriter implements StaxWriter, XMLStreamConstants
    public StaxWriter writeEndElement() throws XMLStreamException
    {
       changeState(END_ELEMENT);
-      writer.writeEndElement();
+      super.writeEndElement();
       return this;
    }
 
@@ -79,7 +98,7 @@ public class FormattingStaxWriter implements StaxWriter, XMLStreamConstants
    public StaxWriter writeAttribute(String localName, String value) throws XMLStreamException
    {
       changeState(ATTRIBUTE);
-      writer.writeAttribute(localName, value);
+      super.writeAttribute(localName, value);
       return this;
    }
 
@@ -96,38 +115,11 @@ public class FormattingStaxWriter implements StaxWriter, XMLStreamConstants
       return this;
    }
 
-   @Override
-   public StaxWriter writeElement(String localName, String text) throws XMLStreamException
-   {
-      return writeStartElement(localName).writeCharacters(text).writeEndElement();
-   }
-
-   @Override
-   public StaxWriter writeOptionalElement(String localName, String text) throws XMLStreamException
-   {
-      if (text == null) return this;
-
-      return writeElement(localName, text);
-   }
-
-   @Override
-   public StaxWriter flush() throws XMLStreamException
-   {
-      writer.flush();
-      return this;
-   }
-
-   @Override
-   public void close() throws XMLStreamException
-   {
-      writer.close();
-   }
-
    //------------------------- Private Impl -------------------------//
 
    private FormattingStaxWriter nl() throws XMLStreamException
    {
-      writer.writeCharacters(formattingInfo.getNewline());
+      super.writeCharacters(formattingInfo.getNewline());
       return this;
    }
    
@@ -135,7 +127,7 @@ public class FormattingStaxWriter implements StaxWriter, XMLStreamConstants
    {
       for (int i = 0; i < level; i++)
       {
-         writer.writeCharacters(indentString);
+         super.writeCharacters(indentString);
       }
       return this;
    }
@@ -197,7 +189,7 @@ public class FormattingStaxWriter implements StaxWriter, XMLStreamConstants
          {
             nl().indent();
          }
-         writer.writeCharacters(segments[i]);
+         super.writeCharacters(segments[i]);
       }
       if (prevLevel < level)
       {
