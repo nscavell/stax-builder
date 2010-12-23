@@ -8,7 +8,7 @@ import javax.xml.stream.XMLStreamException;
  */
 public interface DataTypeConverter<T>
 {
-   public String print(T object) throws XMLStreamException;
+   String print(T object) throws XMLStreamException;
 
-   public T parse(String text) throws XMLStreamException;
+   T parse(String text) throws XMLStreamException;
 }

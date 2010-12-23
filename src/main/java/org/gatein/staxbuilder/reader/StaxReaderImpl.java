@@ -25,6 +25,7 @@ package org.gatein.staxbuilder.reader;
 
 import org.gatein.staxbuilder.EnumElement;
 
+import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -121,11 +122,10 @@ public class StaxReaderImpl implements StaxReader, StaxReadEvent, StaxReadEventB
 
       for (E e : enumType.getEnumConstants())
       {
-         @SuppressWarnings("unchecked")
-         E found = (E) e.forName(delegate.getLocalName());
-         if (found != null)
+         String localName = e.getLocalName();
+         if (localName != null && localName.equals(delegate.getLocalName()))
          {
-            return found;
+            return e;
          }
       }
       return nomatch;
@@ -167,6 +167,12 @@ public class StaxReaderImpl implements StaxReader, StaxReadEvent, StaxReadEventB
    public String getText() throws XMLStreamException
    {
       return delegate.getText();
+   }
+
+   @Override
+   public Location getLocation() throws XMLStreamException
+   {
+      return delegate.getLocation();
    }
 
    private class NestedReadEvent implements StaxReadEvent
@@ -235,6 +241,12 @@ public class StaxReaderImpl implements StaxReader, StaxReadEvent, StaxReadEventB
             nestedReadEvents.pop();
             return false;
          }
+      }
+
+      @Override
+      public Location getLocation() throws XMLStreamException
+      {
+         return parent.getLocation();
       }
    }
 }

@@ -29,7 +29,5 @@ package org.gatein.staxbuilder;
  */
 public interface EnumElement<E extends Enum>
 {
-   public E forName(String name);
-
-   public String getLocalName();
+   String getLocalName();
 }

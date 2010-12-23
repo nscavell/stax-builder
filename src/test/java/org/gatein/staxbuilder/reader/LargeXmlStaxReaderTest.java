@@ -142,15 +142,14 @@ public class LargeXmlStaxReaderTest
       }
 
       @Override
-      public Element forName(String name)
-      {
-         return MAP.get(name);
-      }
-
-      @Override
       public String getLocalName()
       {
          return name;
+      }
+
+      public static Element forName(String name)
+      {
+         return MAP.get(name);
       }
    }
 }

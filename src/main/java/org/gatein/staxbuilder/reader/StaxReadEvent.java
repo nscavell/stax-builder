@@ -25,6 +25,7 @@ package org.gatein.staxbuilder.reader;
 
 import org.gatein.staxbuilder.EnumElement;
 
+import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
 
 /**
@@ -51,4 +52,5 @@ public interface StaxReadEvent
 
    boolean hasNext() throws XMLStreamException;
 
+   Location getLocation() throws XMLStreamException;
 }

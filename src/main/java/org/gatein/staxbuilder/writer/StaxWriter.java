@@ -23,6 +23,9 @@
 
 package org.gatein.staxbuilder.writer;
 
+import org.gatein.staxbuilder.EnumAttribute;
+import org.gatein.staxbuilder.EnumElement;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import java.util.Calendar;
@@ -43,6 +46,12 @@ public interface StaxWriter
 
    StaxWriter writeStartElement(String namespaceURI, String localName) throws XMLStreamException;
 
+   StaxWriter writeStartElement(EnumElement element) throws XMLStreamException;
+
+   StaxWriter writeStartElement(String prefix, String namespaceURI, EnumElement element) throws XMLStreamException;
+
+   StaxWriter writeStartElement(String namespaceURI, EnumElement element) throws XMLStreamException;
+
    StaxWriter writeDefaultNamespace(String namespaceURI) throws XMLStreamException;
 
    StaxWriter writeNamespace(String prefix, String namespaceURI) throws XMLStreamException;
@@ -55,11 +64,21 @@ public interface StaxWriter
 
    StaxWriter writeAttribute(String namespaceURI, String localName, String value) throws XMLStreamException;
 
+   StaxWriter writeAttribute(EnumAttribute attribute, String value) throws XMLStreamException;
+
+   StaxWriter writeAttribute(String prefix, String namespaceURI, EnumAttribute attribute, String value) throws XMLStreamException;
+
+   StaxWriter writeAttribute(String namespaceURI, EnumAttribute attribute, String value) throws XMLStreamException;
+
    StaxWriter writeCharacters(String text) throws XMLStreamException;
 
    StaxWriter writeElement(String localName, String text) throws XMLStreamException;
 
+   StaxWriter writeElement(EnumElement element, String text) throws XMLStreamException;
+
    StaxWriter writeOptionalElement(String localName, String text) throws XMLStreamException;
+
+   StaxWriter writeOptionalElement(EnumElement element, String text) throws XMLStreamException;
 
    StaxWriter writeDate(Calendar calendar) throws XMLStreamException;
 

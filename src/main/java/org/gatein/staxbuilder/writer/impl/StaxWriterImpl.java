@@ -23,6 +23,8 @@
 
 package org.gatein.staxbuilder.writer.impl;
 
+import org.gatein.staxbuilder.EnumAttribute;
+import org.gatein.staxbuilder.EnumElement;
 import org.gatein.staxbuilder.conversion.DataTypeConverter;
 import org.gatein.staxbuilder.writer.StaxWriter;
 
@@ -100,6 +102,24 @@ public class StaxWriterImpl implements StaxWriter
    }
 
    @Override
+   public StaxWriter writeStartElement(EnumElement element) throws XMLStreamException
+   {
+      return writeStartElement(element.getLocalName());
+   }
+
+   @Override
+   public StaxWriter writeStartElement(String prefix, String namespaceURI, EnumElement element) throws XMLStreamException
+   {
+      return writeStartElement(prefix, namespaceURI, element.getLocalName());
+   }
+
+   @Override
+   public StaxWriter writeStartElement(String namespaceURI, EnumElement element) throws XMLStreamException
+   {
+      return writeStartElement(namespaceURI, element.getLocalName());
+   }
+
+   @Override
    public StaxWriter writeDefaultNamespace(String namespaceURI) throws XMLStreamException
    {
       writer.writeDefaultNamespace(namespaceURI);
@@ -142,6 +162,24 @@ public class StaxWriterImpl implements StaxWriter
    }
 
    @Override
+   public StaxWriter writeAttribute(EnumAttribute attribute, String value) throws XMLStreamException
+   {
+      return writeAttribute(attribute.getLocalName(), value);
+   }
+
+   @Override
+   public StaxWriter writeAttribute(String prefix, String namespaceURI, EnumAttribute attribute, String value) throws XMLStreamException
+   {
+      return writeAttribute(prefix, namespaceURI, attribute.getLocalName(), value);
+   }
+
+   @Override
+   public StaxWriter writeAttribute(String namespaceURI, EnumAttribute attribute, String value) throws XMLStreamException
+   {
+      return writeAttribute(namespaceURI, attribute.getLocalName(), value);
+   }
+
+   @Override
    public StaxWriter writeCharacters(String text) throws XMLStreamException
    {
       writer.writeCharacters(text);
@@ -155,11 +193,23 @@ public class StaxWriterImpl implements StaxWriter
    }
 
    @Override
+   public StaxWriter writeElement(EnumElement element, String text) throws XMLStreamException
+   {
+      return writeElement(element.getLocalName(), text);
+   }
+
+   @Override
    public StaxWriter writeOptionalElement(String localName, String text) throws XMLStreamException
    {
       if (text == null) return this;
 
       return writeElement(localName, text);
+   }
+
+   @Override
+   public StaxWriter writeOptionalElement(EnumElement element, String text) throws XMLStreamException
+   {
+      return writeOptionalElement(element.getLocalName(), text);
    }
 
    @Override
