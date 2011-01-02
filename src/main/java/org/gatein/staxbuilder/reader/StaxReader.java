@@ -23,6 +23,8 @@
 
 package org.gatein.staxbuilder.reader;
 
+import org.gatein.staxbuilder.EnumElement;
+
 import javax.xml.stream.XMLStreamException;
 
 /**
@@ -31,15 +33,39 @@ import javax.xml.stream.XMLStreamException;
  */
 public interface StaxReader
 {
-
+   /**
+    * Performs one read operation.
+    * @return a {@link StaxReadEvent} for further processing
+    * @throws javax.xml.stream.XMLStreamException if an exception occurs
+    *
+    * @see javax.xml.stream.XMLStreamReader#next()
+    */
    StaxReadEvent read() throws XMLStreamException;
 
+   /**
+    * Will read the next START_ELEMENT or END_ELEMENT skipping whitespace.
+    * @return a {@link StaxReadEvent} for further processing
+    * @throws javax.xml.stream.XMLStreamException if an exception occurs
+    *
+    * @see javax.xml.stream.XMLStreamReader#nextTag()
+    */
    StaxReadEvent readNextTag() throws XMLStreamException;
 
+   /**
+    * Returns the current read event of the reader.
+    * @return current {@link StaxReadEvent}
+    * @throws javax.xml.stream.XMLStreamException if an exception occurs
+    */
    StaxReadEvent currentReadEvent() throws XMLStreamException;
 
-   StaxReadEventBuilder buildReadEvent()  throws XMLStreamException;
-
+   /**
+    * Indicates whether more read events can be processed.
+    * @return true if more read events are available
+    * @throws javax.xml.stream.XMLStreamException if an exception occurs
+    *
+    * @see javax.xml.stream.XMLStreamReader#hasNext()
+    */
    boolean hasNext() throws XMLStreamException;
 
+   StaxReadEventBuilder buildReadEvent() throws XMLStreamException;
 }

@@ -23,21 +23,22 @@
 
 package org.gatein.staxbuilder.reader;
 
-import org.gatein.staxbuilder.EnumElement;
-
 /**
  * @author <a href="mailto:nscavell@redhat.com">Nick Scavelli</a>
  * @version $Revision$
  */
 public interface StaxReadEventBuilder
 {
-   // todo: rename methods/clean up api as i don't think it's quite intuitive
+   /**
+    * Builds a navigation read event for navigation based reads.
+    * @return NavigationReadEvent for navigation based reads.
+    */
+   NavigationReadEvent withNavigation();
 
-   StaxReadEventBuilder until(EnumElement element);
-
-   StaxReadEventBuilder end();
-
-   StaxReadEventBuilder start();
-
-   StaxReadEvent build();
+   /**
+    * Builds a nested read so that calls to hasNext will return false if criteria defined in {@link NestedReadBuilder}
+    * are met.
+    * @return NestedReadBuilder to build criteria for nested read.
+    */
+   NestedReadBuilder withNestedRead();
 }

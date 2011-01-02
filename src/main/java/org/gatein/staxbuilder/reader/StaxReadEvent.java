@@ -23,8 +23,6 @@
 
 package org.gatein.staxbuilder.reader;
 
-import org.gatein.staxbuilder.EnumElement;
-
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
 
@@ -34,14 +32,6 @@ import javax.xml.stream.XMLStreamException;
  */
 public interface StaxReadEvent
 {
-   //todo: there's two outcomes to this match, no match found but we read a START_ELEMENT and where we don't read a START_ELEMENT
-
-   <E extends Enum<E> & EnumElement> E match(Class<E> enumType, E nomatch) throws XMLStreamException;
-
-   StaxReader and() throws XMLStreamException;
-
-   StaxReadEvent next() throws XMLStreamException;
-
    int getEventType() throws XMLStreamException;
 
    String elementText() throws XMLStreamException;
@@ -53,4 +43,8 @@ public interface StaxReadEvent
    boolean hasNext() throws XMLStreamException;
 
    Location getLocation() throws XMLStreamException;
+
+   StaxReadEventMatchBuilder match();
+
+   StaxReader and() throws XMLStreamException;
 }

@@ -76,7 +76,7 @@ public class StaxReaderTest
       {
          while (reader.hasNext())
          {
-            switch(reader.read().match(Element.class, Element.UNKNOWN))
+            switch(reader.read().match().onElement(Element.class, Element.UNKNOWN, Element.UNKNOWN))
             {
                case BOOK:
                   books.add(parseBook(reader, new Book())); // nested read inside parseBook
@@ -100,26 +100,123 @@ public class StaxReaderTest
       Assert.assertEquals("$29.99", books.get(1).price);
    }
 
+   @Test
+   public void navigationRead() throws XMLStreamException
+   {
+      StringReader sr = new StringReader(
+         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+         "<books>\n" +
+         "   <book>\n" +
+         "      <title>Title A</title>\n" +
+         "      <author>Author A</author>\n" +
+         "      <price>$15.99</price>\n" +
+         "   </book>\n" +
+         "   <book>\n" +
+         "      <title>Title B</title>\n" +
+         "      <author>Author B</author>\n" +
+         "      <price>$29.99</price>\n" +
+         "   </book>\n" +
+         "</books>");
+
+      StaxReader reader = new StaxReaderBuilder().withReader(sr).build();
+      reader.readNextTag();
+      NavigationReadEvent nav = reader.buildReadEvent().withNavigation();
+      Assert.assertTrue(nav.child("book").success());
+      Assert.assertEquals(2, nav.getLevel());
+      Assert.assertTrue(nav.child("title").success());
+      Assert.assertEquals(3, nav.getLevel());
+      Assert.assertEquals("Title A", nav.getText());
+      Assert.assertTrue(nav.sibling("author").success());
+      Assert.assertEquals(3, nav.getLevel());
+      Assert.assertEquals("Author A", nav.getText());
+      Assert.assertTrue(nav.sibling("price").success());
+      Assert.assertEquals(3, nav.getLevel());
+      Assert.assertEquals("$15.99", nav.getText());
+   }
+
+   @Test
+   public void navigationRead_ChildSkip() throws XMLStreamException
+   {
+      StringReader sr = new StringReader(
+         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+         "<books>\n" +
+         "   <book>\n" +
+         "      <title>Title A</title>\n" +
+         "      <author>Author A</author>\n" +
+         "      <price>$15.99</price>\n" +
+         "      <isbn>123456789</isbn>\n" +
+         "      <cc>1990</cc>\n" +
+         "   </book>\n" +
+         "</books>");
+
+      StaxReader reader = new StaxReaderBuilder().withReader(sr).build();
+      reader.readNextTag();
+      NavigationReadEvent nav = reader.buildReadEvent().withNavigation();
+      Assert.assertTrue(nav.child("book").success());
+      Assert.assertEquals(2, nav.getLevel());
+      Assert.assertTrue(nav.child("price").success());
+      Assert.assertEquals("price", nav.getLocalName());
+      Assert.assertEquals("$15.99", nav.getText());
+   }
+
+   @Test
+   public void navigationRead_SiblingSkip() throws XMLStreamException
+   {
+      StringReader sr = new StringReader(
+         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+         "<books>\n" +
+         "   <book>\n" +
+         "      <title>Title A</title>\n" +
+         "      <author>Author A</author>\n" +
+         "      <price>$15.99</price>\n" +
+         "      <isbn>123456789</isbn>\n" +
+         "      <cc>1990</cc>\n" +
+         "   </book>\n" +
+         "</books>");
+
+      StaxReader reader = new StaxReaderBuilder().withReader(sr).build();
+      reader.readNextTag();
+      NavigationReadEvent nav = reader.buildReadEvent().withNavigation();
+      Assert.assertTrue(nav.child("book").success());
+      Assert.assertTrue(nav.child("title").success());
+      Assert.assertTrue(nav.sibling("price").success());
+      Assert.assertEquals("price", nav.getLocalName());
+      Assert.assertEquals("$15.99", nav.getText());
+      Assert.assertTrue(nav.sibling("cc").success());
+      Assert.assertEquals("cc", nav.getLocalName());
+      Assert.assertEquals("1990", nav.getText());
+   }
+
    private Book parseBook(StaxReader reader, Book book) throws XMLStreamException
    {
-      // This creates a nested read and will return true until the end of the book element has been reached.
-      StaxReadEvent event = reader.buildReadEvent().until(Element.BOOK).end().build();
-      while (event.hasNext())
+      int titleCount = 0;
+      int authorCount = 0;
+      int priceCount = 0;
+      // This marks a nested read and calling hasNext will return true until the end of the book element has been reached.
+      reader.buildReadEvent().withNestedRead().untilElement(Element.BOOK).end();
+      while (reader.hasNext())
       {
-         switch (reader.read().match(Element.class, Element.UNKNOWN))
+         switch (reader.read().match().onElement(Element.class, Element.UNKNOWN, Element.UNKNOWN))
          {
             case TITLE:
-               book.title = event.elementText();
+               book.title = reader.currentReadEvent().elementText();
+               titleCount++;
                break;
             case AUTHOR:
-               book.author = event.elementText();
+               book.author = reader.currentReadEvent().elementText();
+               authorCount++;
                break;
             case PRICE:
-               book.price = event.elementText();
+               book.price = reader.currentReadEvent().elementText();
+               priceCount++;
                break;
             default:
+               break;
          }
       }
+      Assert.assertEquals("Nested read should only set title once.",  1, titleCount);
+      Assert.assertEquals("Nested read should only set author once.", 1, authorCount);
+      Assert.assertEquals("Nested read should only set price once.",  1, priceCount);
       return book;
    }
 

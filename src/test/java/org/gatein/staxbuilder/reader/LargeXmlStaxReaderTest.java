@@ -48,10 +48,10 @@ public class LargeXmlStaxReaderTest
       List<PortletApplication> apps = new ArrayList<PortletApplication>();
       while (reader.hasNext())
       {
-         switch (reader.read().match(Element.class, Element.UNKNOWN))
+         switch (reader.read().match().onElement(Element.class, Element.UNKNOWN, Element.UNKNOWN))
          {
             case PORTLET_APPLICATION:
-               switch(reader.readNextTag().match(Element.class, Element.UNKNOWN))
+               switch(reader.readNextTag().match().onElement(Element.class, Element.UNKNOWN, Element.UNKNOWN))
                {
                   case PORTLET:
                      PortletApplication app = new PortletApplication();
@@ -82,10 +82,12 @@ public class LargeXmlStaxReaderTest
       int showInforBarCount = 0;
       while (reader.hasNext())
       {
-         StaxReadEvent event = reader.read().and().buildReadEvent().until(Element.PAGE).end().build();
-         while (event.hasNext())
+         //StaxReadEvent event = reader.read().and().buildReadEvent().until(Element.PAGE).end().build();
+         //reader.nestedRead().untilElement(Element.PAGE).end();
+         reader.buildReadEvent().withNestedRead().untilElement(Element.PAGE).end();
+         while (reader.hasNext())
          {
-            switch (reader.read().match(Element.class, Element.UNKNOWN))
+            switch (reader.read().match().onElement(Element.class, Element.UNKNOWN, Element.UNKNOWN))
             {
                case TITLE:
                   titleCount++;
