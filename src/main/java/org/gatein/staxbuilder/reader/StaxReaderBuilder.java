@@ -23,13 +23,20 @@
 
 package org.gatein.staxbuilder.reader;
 
+import org.gatein.staxbuilder.conversion.DataTypeConverter;
+import org.gatein.staxbuilder.conversion.impl.XmlDateConverter;
+import org.gatein.staxbuilder.conversion.impl.XmlDateTimeConverter;
 import org.gatein.staxbuilder.reader.impl.StaxReaderImpl;
 
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:nscavell@redhat.com">Nick Scavelli</a>
@@ -40,8 +47,12 @@ public class StaxReaderBuilder
    private XMLStreamReader writer;
    private Object input;
 
+   private Map<QName, DataTypeConverter> converters = new HashMap<QName, DataTypeConverter>();
+
    public StaxReaderBuilder()
    {
+      converters.put(DatatypeConstants.DATE, new XmlDateConverter());
+      converters.put(DatatypeConstants.DATETIME, new XmlDateTimeConverter());
    }
 
    public StaxReaderBuilder withInputStream(InputStream is) throws XMLStreamException
@@ -64,6 +75,12 @@ public class StaxReaderBuilder
       this.writer = writer;
       return this;
    }
+   public StaxReaderBuilder registerDataTypeConverter(QName namespace, DataTypeConverter converter)
+   {
+      converters.put(namespace, converter);
+      return this;
+   }
+
 
    public StaxReader build() throws XMLStreamException
    {
@@ -84,6 +101,6 @@ public class StaxReaderBuilder
             throw new IllegalStateException("Unkown InputStream/Writer " + input); // should never happen...
          }
       }
-      return new StaxReaderImpl(writer);
+      return new StaxReaderImpl(writer, converters);
    }
 }

@@ -25,6 +25,7 @@ package org.gatein.staxbuilder.writer.impl;
 
 import org.gatein.staxbuilder.EnumAttribute;
 import org.gatein.staxbuilder.EnumElement;
+import org.gatein.staxbuilder.conversion.AbstractConverterProvider;
 import org.gatein.staxbuilder.conversion.DataTypeConverter;
 import org.gatein.staxbuilder.writer.StaxWriter;
 
@@ -40,19 +41,18 @@ import java.util.Map;
  * @version $Revision$
  */
 //TODO: Support all XMLStreamWriter methods, ie namepsaces, comments, cdata, etc
-public class StaxWriterImpl implements StaxWriter
+public class StaxWriterImpl extends AbstractConverterProvider implements StaxWriter
 {
    private final XMLStreamWriter writer;
    private final String encoding;
    private final String version;
-   private final Map<QName, DataTypeConverter> converters;
 
    public StaxWriterImpl(final XMLStreamWriter writer, final String encoding, final String version, Map<QName, DataTypeConverter> converters)
    {
+      super(converters);
       this.writer = writer;
       this.encoding = encoding;
       this.version = version;
-      this.converters = converters;
    }
 
    @Override
@@ -246,28 +246,5 @@ public class StaxWriterImpl implements StaxWriter
    public void close() throws XMLStreamException
    {
       writer.close();
-   }
-
-   private DataTypeConverter getDataTypeConverter(QName namespace) throws XMLStreamException
-   {
-      DataTypeConverter dtc = converters.get(namespace);
-      if (dtc == null) throw new XMLStreamException("No data type converter found for namespace " + namespace);
-
-      return dtc;
-   }
-
-   @SuppressWarnings("unchecked")
-   private <T> DataTypeConverter<T> getDataTypeConverter(QName namespace, Class<T> type) throws XMLStreamException
-   {
-      DataTypeConverter dtc = getDataTypeConverter(namespace);
-
-      try
-      {
-         return (DataTypeConverter<T>) dtc;
-      }
-      catch (ClassCastException cce)
-      {
-         throw new XMLStreamException("Was expecting converter of DataTypeConverter<" + type + "> for namespace " + namespace);
-      }
    }
 }

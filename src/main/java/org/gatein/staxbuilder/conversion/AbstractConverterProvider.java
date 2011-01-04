@@ -21,36 +21,45 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.gatein.staxbuilder.reader;
+package org.gatein.staxbuilder.conversion;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
-import java.util.Date;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:nscavell@redhat.com">Nick Scavelli</a>
  * @version $Revision$
  */
-public interface StaxReadEvent
+public abstract class AbstractConverterProvider
 {
-   int getEventType() throws XMLStreamException;
+   private Map<QName, DataTypeConverter> converters;
 
-   String elementText() throws XMLStreamException;
+   public AbstractConverterProvider(Map<QName, DataTypeConverter> converters)
+   {
+      this.converters = converters;
+   }
 
-   String getLocalName() throws XMLStreamException;
+   protected DataTypeConverter getDataTypeConverter(QName namespace) throws XMLStreamException
+   {
+      DataTypeConverter dtc = converters.get(namespace);
+      if (dtc == null) throw new XMLStreamException("No data type converter found for namespace " + namespace);
 
-   String getText() throws XMLStreamException;
+      return dtc;
+   }
 
-   boolean hasNext() throws XMLStreamException;
+   @SuppressWarnings("unchecked")
+   protected <T> DataTypeConverter<T> getDataTypeConverter(QName namespace, Class<T> type) throws XMLStreamException
+   {
+      DataTypeConverter dtc = getDataTypeConverter(namespace);
 
-   Location getLocation() throws XMLStreamException;
-
-   StaxReadEventMatchBuilder match();
-
-   StaxReader and() throws XMLStreamException;
-
-   <T> T convertText(QName qname, Class<T> clazz) throws XMLStreamException;
-
-   <T> T convertElementText(QName qname, Class<T> clazz) throws XMLStreamException;
+      try
+      {
+         return (DataTypeConverter<T>) dtc;
+      }
+      catch (ClassCastException cce)
+      {
+         throw new XMLStreamException("Was expecting converter of DataTypeConverter<" + type + "> for namespace " + namespace);
+      }
+   }
 }

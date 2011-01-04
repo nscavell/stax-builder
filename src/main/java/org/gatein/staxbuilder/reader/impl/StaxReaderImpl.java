@@ -24,6 +24,8 @@
 package org.gatein.staxbuilder.reader.impl;
 
 import org.gatein.staxbuilder.EnumElement;
+import org.gatein.staxbuilder.conversion.AbstractConverterProvider;
+import org.gatein.staxbuilder.conversion.DataTypeConverter;
 import org.gatein.staxbuilder.reader.NavigationReadEvent;
 import org.gatein.staxbuilder.reader.NestedReadBuilder;
 import org.gatein.staxbuilder.reader.StaxReadEvent;
@@ -33,20 +35,23 @@ import org.gatein.staxbuilder.reader.StaxReader;
 import org.gatein.staxbuilder.reader.impl.navigation.PushbackXMLStreamReader;
 
 import javax.naming.ldap.StartTlsRequest;
+import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.util.ArrayDeque;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:nscavell@redhat.com">Nick Scavelli</a>
  * @version $Revision$
  */
-public class StaxReaderImpl implements StaxReader, StaxReadEvent, NavigationReadEvent,
+public class StaxReaderImpl extends AbstractConverterProvider implements StaxReader, StaxReadEvent, NavigationReadEvent,
    StaxReadEventBuilder, StaxReadEventMatchBuilder, NestedReadBuilder, XMLStreamConstants
 {
-   private XMLStreamReader delegate;
+   private final XMLStreamReader delegate;
    private PushbackXMLStreamReader pushbackReader;
 
    private ArrayDeque<NestedRead> nestedReadEvents = new ArrayDeque<NestedRead>();
@@ -55,8 +60,9 @@ public class StaxReaderImpl implements StaxReader, StaxReadEvent, NavigationRead
 
    private boolean success;
 
-   public StaxReaderImpl(XMLStreamReader delegate)
+   public StaxReaderImpl(XMLStreamReader delegate, Map<QName, DataTypeConverter> converters)
    {
+      super(converters);
       this.delegate = delegate;
    }
 
@@ -116,6 +122,13 @@ public class StaxReaderImpl implements StaxReader, StaxReadEvent, NavigationRead
    }
 
    @Override
+   public <T> T convertElementText(QName qname, Class<T> clazz) throws XMLStreamException
+   {
+      String text = elementText();
+      return getDataTypeConverter(qname, clazz).parse(text);
+   }
+
+   @Override
    public String getLocalName()
    {
       return getDelegate().getLocalName();
@@ -141,6 +154,13 @@ public class StaxReaderImpl implements StaxReader, StaxReadEvent, NavigationRead
          }
       }
       return getDelegate().getText();
+   }
+
+   @Override
+   public <T> T convertText(QName qname, Class<T> clazz) throws XMLStreamException
+   {
+      String text = getText();
+      return getDataTypeConverter(qname, clazz).parse(text);
    }
 
    @Override
