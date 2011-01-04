@@ -93,10 +93,17 @@ public class StaxReaderImpl extends AbstractConverterProvider implements StaxRea
    @Override
    public boolean hasNext() throws XMLStreamException
    {
-      NestedRead nestedRead = nestedReadEvents.peek();
-      if (nestedRead == null) return getDelegate().hasNext();
+      boolean hasNext = _hasNext();
+      if (!hasNext && !nestedReadEvents.isEmpty())
+      {
+         nestedReadEvents.pop();
+         if (!nestedReadEvents.isEmpty())
+         {
+            nestedReadEvents.peek().level--;
+         }
+      }
 
-      return nestedRead.hasNext();
+      return hasNext;
    }
 
    @Override
@@ -141,7 +148,7 @@ public class StaxReaderImpl extends AbstractConverterProvider implements StaxRea
       {
          int currentLevel = level;
          // read ahead
-         while (hasNext() && getEventType() != CHARACTERS && currentLevel == level)
+         while (_hasNext() && getEventType() != CHARACTERS && currentLevel == level)
          {
             read();
          }
@@ -281,6 +288,19 @@ public class StaxReaderImpl extends AbstractConverterProvider implements StaxRea
 
    //---------------------------------------  Private ---------------------------------------//
 
+   private boolean _hasNext() throws XMLStreamException
+   {
+      if (nestedReadEvents.isEmpty())
+      {
+         return getDelegate().hasNext();
+      }
+      else
+      {
+         NestedRead nestedRead = nestedReadEvents.peek();
+         return nestedRead.hasNext();
+      }
+   }
+
    private void updateLevel()
    {
       NestedRead nestedRead = nestedReadEvents.peek();
@@ -310,7 +330,7 @@ public class StaxReaderImpl extends AbstractConverterProvider implements StaxRea
       pushbackReader.wantMark();
       int currentLevel = level;
       boolean first = true;
-      while (hasNext())
+      while (_hasNext())
       {
          int eventType = (first) ? getEventType() : read().getEventType();
 
@@ -360,7 +380,7 @@ public class StaxReaderImpl extends AbstractConverterProvider implements StaxRea
       
       if (getEventType() != END_ELEMENT)
       {
-         while (hasNext() && level >= currentLevel)
+         while (_hasNext() && level >= currentLevel)
          {
             int event = read().getEventType();
             if (event == END_ELEMENT)
@@ -375,7 +395,7 @@ public class StaxReaderImpl extends AbstractConverterProvider implements StaxRea
       }
 
       boolean first = true;
-      while (hasNext())
+      while (_hasNext())
       {
          int eventType = (first) ? getEventType() : read().getEventType();
          if (eventType == START_ELEMENT && level == siblingLevel)
@@ -429,19 +449,7 @@ public class StaxReaderImpl extends AbstractConverterProvider implements StaxRea
             throw new XMLStreamException("Nested read not properly built. Not sure what event to stop nested read. Try calling end() on NestedReadBuilder.");
 
 
-         if (getDelegate().hasNext())
-         {
-            if (level == 0)
-            {
-               nestedReadEvents.pop();
-               return false;
-            }
-            return true;
-         }
-         else
-         {
-            return false;
-         }
+         return getDelegate().hasNext() && (level != 0);
       }
    }
 }

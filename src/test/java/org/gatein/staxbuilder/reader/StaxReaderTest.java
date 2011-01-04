@@ -62,6 +62,16 @@ public class StaxReaderTest
          "      <title>Title A</title>\n" +
          "      <author>Author A</author>\n" +
          "      <price>$15.99</price>\n" +
+         "      <samples>\n" +
+         "         <sample>" +
+         "            <chapter>1</chapter>\n" +
+         "            <text>Some chapter 1 text here, and so on and so on...\n</text>" +
+         "         </sample>\n" +
+         "         <sample>" +
+         "            <chapter>2</chapter>\n" +
+         "            <text>Chapter 2 text blah blah blah\n</text>" +
+         "         </sample>\n" +
+         "      </samples>\n" +
          "   </book>\n" +
          "   <book>\n" +
          "      <title>Title B</title>\n" +
@@ -210,13 +220,42 @@ public class StaxReaderTest
                book.price = reader.currentReadEvent().elementText();
                priceCount++;
                break;
+            case SAMPLES:
+               book.samples = new ArrayList<Sample>();
+               break;
+            case SAMPLE:
+               int chapterCount = 0;
+               int textCount = 0;
+               Sample sample = new Sample();
+               reader.buildReadEvent().withNestedRead().untilElement(Element.SAMPLE).end();
+               while (reader.hasNext())
+               {
+                  switch(reader.read().match().onElement(Element.class, Element.UNKNOWN, Element.UNKNOWN))
+                  {
+                     case CHAPTER:
+                        sample.chapter = reader.currentReadEvent().elementText();
+                        chapterCount++;
+                        break;
+                     case TEXT:
+                        sample.text = reader.currentReadEvent().elementText();
+                        textCount++;
+                        break;
+                  }
+               }
+               Assert.assertEquals("Nested read should have set chapter once.", 1, chapterCount);
+               Assert.assertEquals("Nested read should have set text once.", 1, textCount);
+               book.samples.add(sample);
             default:
                break;
          }
       }
-      Assert.assertEquals("Nested read should only set title once.",  1, titleCount);
-      Assert.assertEquals("Nested read should only set author once.", 1, authorCount);
-      Assert.assertEquals("Nested read should only set price once.",  1, priceCount);
+      Assert.assertEquals("Nested read should have set title once.",  1, titleCount);
+      Assert.assertEquals("Nested read should have set author once.", 1, authorCount);
+      Assert.assertEquals("Nested read should have set price once.",  1, priceCount);
+      if (book.samples != null)
+      {
+         Assert.assertEquals("Nested read should have created 2 samples.", 2, book.samples.size());
+      }
       return book;
    }
 
@@ -225,16 +264,27 @@ public class StaxReaderTest
       private String title;
       private String author;
       private String price;
+      private List<Sample> samples;
+   }
+
+   private static class Sample
+   {
+      String chapter;
+      String text;
    }
 
    private static enum Element implements EnumElement<Element>
    {
+      UNKNOWN(null),
       BOOKS("books"),
       BOOK("book"),
       TITLE("title"),
       AUTHOR("author"),
       PRICE("price"),
-      UNKNOWN(null);
+      SAMPLES("samples"),
+      SAMPLE("sample"),
+      CHAPTER("chapter"),
+      TEXT("text");
 
 
       private static final Map<String, Element> MAP;
