@@ -228,6 +228,10 @@ public class StaxWriterTest
    private static class CustomDateTimeConverter implements DataTypeConverter<Calendar>
    {
       private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a z");
+      static
+      {
+         sdf.setTimeZone(TimeZone.getTimeZone("US/Eastern"));
+      }
 
       @Override
       public String print(Calendar object) throws XMLStreamException
