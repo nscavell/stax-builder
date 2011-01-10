@@ -164,6 +164,24 @@ public class StaxReaderImpl extends AbstractConverterProvider implements StaxRea
    }
 
    @Override
+   public String getAttributeValue(int index)
+   {
+      return getDelegate().getAttributeValue(index);
+   }
+
+   @Override
+   public String getAttributeLocalName(int index)
+   {
+      return getDelegate().getAttributeLocalName(index);
+   }
+
+   @Override
+   public int getAttributeCount()
+   {
+      return getDelegate().getAttributeCount();
+   }
+
+   @Override
    public <T> T convertText(QName qname, Class<T> clazz) throws XMLStreamException
    {
       String text = getText();

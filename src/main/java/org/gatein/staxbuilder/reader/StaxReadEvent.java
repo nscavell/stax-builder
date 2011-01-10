@@ -42,6 +42,12 @@ public interface StaxReadEvent
 
    String getText() throws XMLStreamException;
 
+   String getAttributeValue(int index);
+
+   String getAttributeLocalName(int index);
+
+   int getAttributeCount();
+
    boolean hasNext() throws XMLStreamException;
 
    Location getLocation() throws XMLStreamException;
