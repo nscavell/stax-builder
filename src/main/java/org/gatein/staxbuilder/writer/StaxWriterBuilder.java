@@ -36,7 +36,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.stream.events.Namespace;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -145,11 +147,13 @@ public class StaxWriterBuilder
    {
       if (writer == null && output == null) throw new IllegalStateException("Cannot build stax writer. Try calling withOutputStream or withWriter.");
 
+      String realEncoding = (encoding == null) ? null : Charset.forName(encoding).name();
+
       if (writer == null)
       {
          if (output instanceof OutputStream)
          {
-            writer = XMLOutputFactory.newInstance().createXMLStreamWriter((OutputStream) output);
+            writer = XMLOutputFactory.newInstance().createXMLStreamWriter((OutputStream) output, realEncoding);
          }
          else if (output instanceof Writer)
          {
@@ -160,8 +164,6 @@ public class StaxWriterBuilder
             throw new IllegalStateException("Unknown OutputStream/Writer " + output); // should never happen...
          }
       }
-
-      //StaxWriterImpl staxWriterImpl = new StaxWriterImpl(writer, encoding, version);
 
       if (formatterBuilder != null)
       {
