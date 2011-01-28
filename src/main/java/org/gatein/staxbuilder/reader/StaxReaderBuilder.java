@@ -46,6 +46,7 @@ public class StaxReaderBuilder
 {
    private XMLStreamReader writer;
    private Object input;
+   private String encoding;
 
    private Map<QName, DataTypeConverter> converters = new HashMap<QName, DataTypeConverter>();
 
@@ -59,6 +60,14 @@ public class StaxReaderBuilder
    {
       if (is == null) throw new IllegalArgumentException("InputStream cannot be null.");
       input = is;
+      return this;
+   }
+
+   public StaxReaderBuilder withInputStream(InputStream is, String encoding) throws XMLStreamException
+   {
+      if (is == null) throw new IllegalArgumentException("InputStream cannot be null.");
+      input = is;
+      this.encoding = encoding;
       return this;
    }
 
@@ -90,7 +99,7 @@ public class StaxReaderBuilder
       {
          if (input instanceof InputStream)
          {
-            writer = XMLInputFactory.newInstance().createXMLStreamReader((InputStream) input);
+            writer = XMLInputFactory.newInstance().createXMLStreamReader((InputStream) input, encoding);
          }
          else if (input instanceof Reader)
          {
