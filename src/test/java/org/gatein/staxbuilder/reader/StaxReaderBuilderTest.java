@@ -27,6 +27,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.xml.stream.XMLStreamException;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 /**
  * @author <a href="mailto:nscavell@redhat.com">Nick Scavelli</a>
@@ -81,5 +83,17 @@ public class StaxReaderBuilderTest
       }
    }
 
+   @Test
+   public void createBuilder_withInputStream() throws XMLStreamException
+   {
+      InputStream in = new ByteArrayInputStream(new byte[0]);
+      new StaxReaderBuilder().withInputStream(in).build();
+   }
 
+   @Test
+   public void createBuilder_withInputStreamAndEncoding() throws XMLStreamException
+   {
+      InputStream in = new ByteArrayInputStream(new byte[0]);
+      new StaxReaderBuilder().withInputStream(in, "utf-8").build();
+   }
 }
