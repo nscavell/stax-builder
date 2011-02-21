@@ -52,8 +52,6 @@ import java.util.Map;
  */
 public class StaxWriterBuilder
 {
-   //TODO: Add formatting option to builder, ie newline/tabbing
-
    private XMLStreamWriter writer;
    private Object output;
    private String version;
@@ -151,13 +149,20 @@ public class StaxWriterBuilder
 
       if (writer == null)
       {
+         XMLOutputFactory factory = XMLOutputFactory.newInstance();
+         if (factory.getClass().getName().equals("com.ctc.wstx.stax.WstxOutputFactory"))
+         {
+            // Set a woodstox implementation property which allows proper windows newline characters to be written
+            factory.setProperty("com.ctc.wstx.outputEscapeCr", Boolean.FALSE);
+         }
+
          if (output instanceof OutputStream)
          {
-            writer = XMLOutputFactory.newInstance().createXMLStreamWriter((OutputStream) output, realEncoding);
+            writer = factory.createXMLStreamWriter((OutputStream) output, realEncoding);
          }
          else if (output instanceof Writer)
          {
-            writer = XMLOutputFactory.newInstance().createXMLStreamWriter((Writer) output);
+            writer = factory.createXMLStreamWriter((Writer) output);
          }
          else
          {

@@ -13,7 +13,6 @@ import java.util.Map;
  * @author <a href="mailto:nscavell@redhat.com">Nick Scavelli</a>
  * @version $Revision$
  */
-//TODO: Formatting logic could really be used
 public class FormattingStaxWriter extends StaxWriterImpl implements XMLStreamConstants
 {
    private final FormattingInfo formattingInfo;

@@ -14,6 +14,7 @@ public class FormatterBuilder
    private int indentSize = -1;
    private boolean useTab;
    private int sameLineCharacterLimit = -1;
+   private String newline = null;
 
    FormatterBuilder(StaxWriterBuilder staxWriterBuilder)
    {
@@ -35,6 +36,12 @@ public class FormatterBuilder
    public FormatterBuilder sameLineChracterLimit(int sameLineCharacterLimit)
    {
       this.sameLineCharacterLimit = sameLineCharacterLimit;
+      return this;
+   }
+
+   public FormatterBuilder newLine(String newline)
+   {
+      this.newline = newline;
       return this;
    }
 
@@ -63,16 +70,18 @@ public class FormatterBuilder
       }
 
       // Get line separator
-      String nl = null;
-      try
+      if (newline == null)
       {
-         nl = System.getProperty("line.separator");
+         try
+         {
+            newline = System.getProperty("line.separator");
+         }
+         catch (Throwable ignored)
+         {
+         }
       }
-      catch (Throwable ignored)
-      {
-      }
-      if (nl == null) nl = "\n";
+      if (newline == null) newline = "\n";
 
-      return new FormattingInfo(indent, indentSize, sameLineCharacterLimit, nl);
+      return new FormattingInfo(indent, indentSize, sameLineCharacterLimit, newline);
    }
 }
