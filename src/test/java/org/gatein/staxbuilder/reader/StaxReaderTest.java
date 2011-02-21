@@ -86,12 +86,15 @@ public class StaxReaderTest
       {
          while (reader.hasNext())
          {
-            switch(reader.read().match().onElement(Element.class, Element.UNKNOWN, Element.UNKNOWN))
+            switch(reader.read().match().onElement(Element.class, Element.UNKNOWN, Element.SKIP))
             {
                case BOOK:
                   books.add(parseBook(reader, new Book())); // nested read inside parseBook
                   break;
-               default:
+               case SKIP:
+                  break;
+               case UNKNOWN:
+                  throw new Exception("Unknown element " + reader.currentReadEvent().getLocalName());
             }
          }
       }
@@ -108,6 +111,44 @@ public class StaxReaderTest
       Assert.assertEquals("Title B", books.get(1).title);
       Assert.assertEquals("Author B", books.get(1).author);
       Assert.assertEquals("$29.99", books.get(1).price);
+   }
+
+   @Test
+   public void nestedRead_ChildWithSameName() throws Exception
+   {
+      StringReader sr = new StringReader(
+         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+         "<books>\n" +
+         "   <book>\n" +
+         "      <title>Title A</title>\n" +
+         "      <author>Author A</author>\n" +
+         "      <price>$15.99</price>\n" +
+         "      <relatedBooks>\n" +
+         "         <book>15753</book>\n" + // ensures that the nested read doesn't end on child elements
+         "         <book>15778</book>\n" +
+         "      </relatedBooks>\n" +
+         "   </book>\n" +
+         "   <book>\n" +
+         "      <title>Title B</title>\n" +
+         "      <author>Author B</author>\n" +
+         "      <price>$29.99</price>\n" +
+         "   </book>\n" +
+         "</books>");
+
+      StaxReader reader = new StaxReaderBuilder().withReader(sr).build();
+      reader.readNextTag();
+      List<Book> books = new ArrayList<Book>();
+      while (reader.hasNext())
+      {
+         switch (reader.read().match().onElement(Element.class, Element.UNKNOWN, Element.SKIP))
+         {
+            case BOOK:
+               books.add(parseBook(reader, new Book()));
+         }
+      }
+      Assert.assertEquals(2, books.size());
+      Assert.assertEquals("15753", books.get(0).relatedIds.get(0));
+      Assert.assertEquals("15778", books.get(0).relatedIds.get(1));
    }
 
    @Test
@@ -197,7 +238,7 @@ public class StaxReaderTest
       Assert.assertEquals("1990", nav.getText());
    }
 
-   private Book parseBook(StaxReader reader, Book book) throws XMLStreamException
+   private Book parseBook(StaxReader reader, Book book) throws Exception
    {
       int titleCount = 0;
       int authorCount = 0;
@@ -206,7 +247,7 @@ public class StaxReaderTest
       reader.buildReadEvent().withNestedRead().untilElement(Element.BOOK).end();
       while (reader.hasNext())
       {
-         switch (reader.read().match().onElement(Element.class, Element.UNKNOWN, Element.UNKNOWN))
+         switch (reader.read().match().onElement(Element.class, Element.UNKNOWN, Element.SKIP))
          {
             case TITLE:
                book.title = reader.currentReadEvent().elementText();
@@ -245,8 +286,16 @@ public class StaxReaderTest
                Assert.assertEquals("Nested read should have set chapter once.", 1, chapterCount);
                Assert.assertEquals("Nested read should have set text once.", 1, textCount);
                book.samples.add(sample);
-            default:
                break;
+            case RELATED_BOOKS:
+               book.relatedIds = new ArrayList<String>();
+               break;
+            case BOOK:
+               book.relatedIds.add(reader.currentReadEvent().elementText());
+            case SKIP:
+               break;
+            case UNKNOWN:
+               throw new Exception("Unknown element " + reader.currentReadEvent().getLocalName());
          }
       }
       Assert.assertEquals("Nested read should have set title once.",  1, titleCount);
@@ -265,6 +314,7 @@ public class StaxReaderTest
       private String author;
       private String price;
       private List<Sample> samples;
+      private List<String> relatedIds;
    }
 
    private static class Sample
@@ -276,6 +326,7 @@ public class StaxReaderTest
    private static enum Element implements EnumElement<Element>
    {
       UNKNOWN(null),
+      SKIP("skip"),
       BOOKS("books"),
       BOOK("book"),
       TITLE("title"),
@@ -284,7 +335,8 @@ public class StaxReaderTest
       SAMPLES("samples"),
       SAMPLE("sample"),
       CHAPTER("chapter"),
-      TEXT("text");
+      TEXT("text"),
+      RELATED_BOOKS("relatedBooks");
 
 
       private static final Map<String, Element> MAP;
