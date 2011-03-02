@@ -122,7 +122,7 @@ public class StaxWriterBuilder
    {
       if (defaultFormatterBuilder == null)
       {
-         defaultFormatterBuilder = new FormatterBuilder(this).indentSize(3).sameLineChracterLimit(80);
+         defaultFormatterBuilder = new FormatterBuilder(this).indentSize(3);
       }
 
       this.formatterBuilder = defaultFormatterBuilder;
@@ -150,7 +150,7 @@ public class StaxWriterBuilder
       if (writer == null)
       {
          XMLOutputFactory factory = XMLOutputFactory.newInstance();
-         if (factory.getClass().getName().equals("com.ctc.wstx.stax.WstxOutputFactory"))
+         if (factory.isPropertySupported("com.ctc.wstx.outputEscapeCr"))
          {
             // Set a woodstox implementation property which allows proper windows newline characters to be written
             factory.setProperty("com.ctc.wstx.outputEscapeCr", Boolean.FALSE);
